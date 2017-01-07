@@ -22,19 +22,21 @@ const fixtures = require('./fixtures/users');
 
 
 describe('Users test', () => {
-
+  before(async ()=>{
+    await promisify(cb => User.collection.drop(cb))();
+  })
 
   describe('GET request testing', () => {
-    before(async() => {
+    before(async () => {
       // Удаление  коллекции users
-      await promisify(cb => User.collection.drop(cb))();
+
+      await User.remove({})
       // Создание фикстур
       await User.create(fixtures);
     });
 
     it('request /users should return a list of users with the correct headings and count of users', async() => {
       let response = await request('http://localhost:3000/users');
-      console.log(response.body);
       expect(response.statusCode).toBe(200);
       expect(response.headers['content-type']).toBe('application/json; charset=utf-8');
       expect(response.body.length).toBe(2);
@@ -52,12 +54,12 @@ describe('Users test', () => {
       expect(response.body).toEqual(user);
     });
 
-    it('request /users/notExistId should return 404 statusCode', async() => {
+    it('request /users/notExistId should return 404 statusCode', async () => {
       let response = await request(`http://localhost:3000/users/notExistId`);
       expect(response.statusCode).toBe(404);
     });
 
-    it('request /users should return [] if no users in collection', async() => {
+    it('request /users should return [] if no users in collection', async () => {
       await User.remove({}); // Удаление всех users из коллекции
       let response = await request('http://localhost:3000/users');
       expect(response.statusCode).toBe(200);
@@ -68,10 +70,10 @@ describe('Users test', () => {
   });
 
 
-  describe('POST request testing', () => {
-    before(async() => {
+  describe('POST request testing', function() {
+    before(async function() {
       // Удаление  коллекции users
-      await promisify(cb => User.collection.drop(cb))();
+      await User.remove({})
       // Создание фикстур
       await User.create(fixtures);
     });

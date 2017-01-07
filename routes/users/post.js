@@ -8,11 +8,10 @@ module.exports = async function (ctx) {
     delete ctx.request.body._id;
   }
   try {
-    console.log(ctx.request.body);
+    console.log('ffff', ctx.request.body);
     let user = await new User(ctx.request.body).save();
     ctx.body = user.getPublicFields();
   } catch (e) {
-    console.error(e);
     if (e.name === 'ValidationError') {
       ctx.status = 400;
       ctx.body = {errors: e.errors};

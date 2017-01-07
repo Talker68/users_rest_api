@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --harmony"
+    "test": "NODE_ENV=test mocha --harmony"
   },
   "author": "",
   "license": "ISC",

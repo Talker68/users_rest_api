@@ -6,7 +6,6 @@ const beautifyUnique = require('mongoose-beautiful-unique-validation');
 
 mongoose.Promise = Promise;
 mongoose.set('debug', process.env.NODE_ENV === 'development' ? true : false);
-mongoose.set('debug',true);
 // вместо MongoError будет выдавать ValidationError (проще ловить и выводить)
 mongoose.plugin(beautifyUnique);
 
