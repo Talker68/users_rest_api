@@ -1,9 +1,9 @@
 'use strict';
 
-console.log(process.env.NODE_ENV);
 if (process.env.NODE_ENV !== 'test') {
   throw new Error('NODE_ENV !== test');
 }
+
 const config = require('config');
 const promisify = require('es6-promisify');
 const expect = require('expect');
@@ -28,8 +28,7 @@ describe('Users test', () => {
 
   describe('GET request testing', () => {
     before(async () => {
-      // Удаление  коллекции users
-
+      // Очитстка коллекции
       await User.remove({})
       // Создание фикстур
       await User.create(fixtures);
@@ -72,15 +71,17 @@ describe('Users test', () => {
 
   describe('POST request testing', function() {
     before(async function() {
-      // Удаление  коллекции users
-      await User.remove({})
+      // Очитстка коллекции
+      await User.remove({});
       // Создание фикстур
       await User.create(fixtures);
     });
 
-    it('Fields are not unique.Should return 400 and errors list', async () => {
+    it('Fields are not unique. Should return 400 and errors list', async () => {
+      let newUser = Object.assign({},fixtures[0]);
+      delete newUser._id;
 
-      let response = await request.post('http://localhost:3000/users', {body: {email : 'masha@gmail.com', displayName: 'masha'}});
+      let response = await request.post('http://localhost:3000/users', {body: newUser});
       expect(response.statusCode).toBe(400);
       expect(response.headers['content-type']).toBe('application/json; charset=utf-8');
       expect('errors' in response.body).toExist();
@@ -110,6 +111,56 @@ describe('Users test', () => {
     })
   });
 
+  describe('PATCH request testing', function() {
+    before(async function () {
+      // Очитстка коллекции
+      await User.remove({});
+      // Создание фикстур
+      await User.create(fixtures);
+    });
+
+    it('should return 404 if there is no user with a specified id', async () => {
+      let response = await request.patch('http://localhost:3000/users/notExist', {body: fixtures[0]});
+      expect(response.statusCode).toBe(404);
+    });
+
+    it('should return 400 if no request body', async () => {
+      let response = await request.patch(`http://localhost:3000/users/${fixtures[0]._id}`);
+      expect(response.statusCode).toBe(400);
+      let response2 = await request.patch(`http://localhost:3000/users/${fixtures[0]._id}`, {body: {}});
+      expect(response2.statusCode).toBe(400);
+    });
+
+    it('should return 400, if exists  user with such data', async () => {
+      let response = await request.patch(`http://localhost:3000/users/${fixtures[0]._id}`, {body: fixtures[1]});
+      expect(response.headers['content-type']).toBe('application/json; charset=utf-8');
+      expect('errors' in response.body).toExist();
+    });
+  });
+
+  describe('DELETE request testing', () => {
+    before(async function () {
+      // Очитстка коллекции
+      await User.remove({});
+      // Создание фикстур
+      await User.create(fixtures);
+    });
+
+    it('should return 404 if there is no user with a specified id', async ()=> {
+      let response = await request.del('http://localhost:3000/users/notExist');
+      expect(response.statusCode).toBe(404);
+    });
+
+    it('should delete user with specifed userId and return 200 statusCode', async ()=> {
+      let response = await request.del(`http://localhost:3000/users/${fixtures[0]._id}`);
+      expect(response.statusCode).toBe(200);
+
+      // Должен остаться 1 пользователь
+      let response2 = await request('http://localhost:3000/users');
+      expect(response2.body.length).toBe(1);
+    });
+
+  });
 
   after(() => {
     server.shutdown();

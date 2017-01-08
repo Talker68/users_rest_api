@@ -8,7 +8,6 @@ module.exports = async function (ctx) {
     delete ctx.request.body._id;
   }
   try {
-    console.log('ffff', ctx.request.body);
     let user = await new User(ctx.request.body).save();
     ctx.body = user.getPublicFields();
   } catch (e) {

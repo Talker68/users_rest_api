@@ -6,14 +6,21 @@ module.exports = async function (ctx) {
   //let user = await User.findByIdAndUpdate(ctx.params.userId, ctx.request.body, {runValidators: true, context: 'query'});
   //let user = await User.findOneAndUpdate({_id: ctx.params.userId}, ctx.request.body, {runValidators: true, context: 'query'});
 
+  // Если в body ничего нет
+  if (!Object.getOwnPropertyNames(ctx.request.body).length) {
+    ctx.throw(400, 'Request body is empty');
+    return;
+  }
   // Поиск пользователя
   let user;
   try{
     user = await User.findById({_id: ctx.params.userId});
   } catch (e) {
-    console.error(e);
     ctx.throw(404, 'User not found');
   }
+
+  // Удаление _id из body
+  delete ctx.request.body._id;
 
   // Обновление пользователя
   try {
