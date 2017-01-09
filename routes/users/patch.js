@@ -17,6 +17,7 @@ module.exports = async function (ctx) {
     user = await User.findById({_id: ctx.params.userId});
   } catch (e) {
     ctx.throw(404, 'User not found');
+    return;
   }
 
   // Удаление _id из body
