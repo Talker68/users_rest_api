@@ -1,4 +1,7 @@
 'use strict';
+
+const pick = require('lodash/pick');
+
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
@@ -36,6 +39,11 @@ userSchema.methods.getPublicFields = function() {
     displayName: this.displayName
   };
 };
+
+userSchema.statics.getAcceptedProperties = function(body) {
+  return pick(body, ['email', 'displayName']);
+}
+
 
 module.exports = mongoose.model('User', userSchema);
 

@@ -18,7 +18,7 @@ const server = require('../server');
 const User = require('../models/user');
 
 const fixtures = require('./fixtures/users');
-
+const oid = require('../utils/oid');
 
 
 
@@ -50,8 +50,13 @@ describe('Users test', () => {
       expect(response.body).toEqual(user);
     });
 
-    it('request /users/notExistId should return 404 statusCode', async () => {
+    it('request /users/:notValidId should return 404 statusCode', async () => {
       let response = await request(`http://localhost:3000/users/notExistId`);
+      expect(response.statusCode).toBe(404);
+    });
+
+    it('request /users/:not exist valid id should return 404 statusCode', async () => {
+      let response = await request(`http://localhost:3000/users/${oid('notExist')}`);
       expect(response.statusCode).toBe(404);
     });
 
@@ -74,7 +79,6 @@ describe('Users test', () => {
 
     it('Fields are not unique. Should return 400 and errors list', async () => {
       let newUser = Object.assign({},fixtures[0]);
-      delete newUser._id;
 
       let response = await request.post('http://localhost:3000/users', {body: newUser});
       expect(response.statusCode).toBe(400);
@@ -113,7 +117,7 @@ describe('Users test', () => {
     });
 
     it('should return 404 if there is no user with a specified id', async () => {
-      let response = await request.patch('http://localhost:3000/users/notExist', {body: fixtures[0]});
+      let response = await request.patch(`http://localhost:3000/users/${oid('notExist')}`, {body: fixtures[0]});
       expect(response.statusCode).toBe(404);
     });
 
@@ -138,7 +142,7 @@ describe('Users test', () => {
     });
 
     it('should return 404 if there is no user with a specified id', async ()=> {
-      let response = await request.del('http://localhost:3000/users/notExist');
+      let response = await request.del(`http://localhost:3000/users/${oid('notExist')}`);
       expect(response.statusCode).toBe(404);
     });
 
